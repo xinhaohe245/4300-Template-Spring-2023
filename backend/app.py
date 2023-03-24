@@ -3,6 +3,7 @@ import os
 from flask import Flask, render_template, request
 from flask_cors import CORS
 from helpers.MySQLDatabaseHandler import MySQLDatabaseHandler
+import similarity as sim
 
 # ROOT_PATH for linking with all your files. 
 # Feel free to use a config.py or settings.py with a global export variable
@@ -24,14 +25,19 @@ mysql_engine.load_file_into_db()
 app = Flask(__name__)
 CORS(app)
 
+
 # Sample search, the LIKE operator in this case is hard-coded, 
 # but if you decide to use SQLAlchemy ORM framework, 
 # there's a much better and cleaner way to do this
-def sql_search(episode):
-    query_sql = f"""SELECT restaurant, item FROM fast_food_items WHERE LOWER( item ) LIKE '%%{episode.lower()}%%' limit 10"""
+def sql_search(itemname):
+    query_sql = f"SELECT restaurant, item FROM fast_food_items WHERE LOWER(item) LIKE '%%{itemname.lower()}%%'"
     keys = ["restaurant", "item"]
     data = mysql_engine.query_selector(query_sql)
-    return json.dumps([dict(zip(keys,i)) for i in data])
+    results = [dict(zip(keys, i)) for i in data]
+    if len(results) <= 10:
+        return json.dumps(results)
+    top_10 = sim.cosine_similarity(itemname, results)
+    return json.dumps(top_10)
 
 @app.route("/")
 def home():
@@ -42,4 +48,4 @@ def episodes_search():
     text = request.args.get("title")
     return sql_search(text)
 
-# app.run(debug=True)
+app.run(debug=True)
