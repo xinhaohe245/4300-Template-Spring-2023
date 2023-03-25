@@ -19,7 +19,7 @@ load_dotenv(find_dotenv())
 MYSQL_USER = os.getenv('MYSQL_USER')
 MYSQL_USER_PASSWORD = os.getenv('MYSQL_USER_PASSWORD')
 MYSQL_PORT = os.getenv('MYSQL_PORT')
-MYSQL_DATABASE = "fastfooddb"
+MYSQL_DATABASE = "kardashiandb"
 
 mysql_engine = MySQLDatabaseHandler(MYSQL_USER,MYSQL_USER_PASSWORD,MYSQL_PORT,MYSQL_DATABASE)
 
