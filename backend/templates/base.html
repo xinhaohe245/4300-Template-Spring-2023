@@ -3,7 +3,9 @@
 <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Kanit&family=Montserrat&family=Open+Sans:wght@500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Kanit&family=Montserrat&family=Open+Sans:wght@500&display=swap"
+    rel="stylesheet">
+
 <body>
     <div class="full-body-container">
         <div class="top-text">
@@ -14,10 +16,11 @@
                 <h1 id="google-3">3</h1>
                 <h1 id="google-0-1">0</h1>
                 <h1 id="google-0-2">0</h1>
+
             </div>
             <div class="input-box" onclick="sendFocus()">
                 <img src="{{ url_for('static', filename='images/mag.png') }}" />
-                <input placeholder="Search for a Keeping up with the Kardashians episode" id="filter-text-val" onkeyup="filterText()">
+                <input placeholder="What fast food are you craving?" id="filter-text-val" onkeyup="filterText()">
             </div>
         </div>
         <div id="answer-box">
@@ -27,30 +30,37 @@
 
     <script>
 
-        function answerBoxTemplate(restaurant,item){
+        function answerBoxTemplate(row) {
             return `<div class=''>
-                <h3 class='episode-title'>${restaurant}</h3>
-                <p class='episode-desc'>${item}</p>
+                <h3 class='episode-title'>${row.restaurant}</h3>
+                <h4 class='episode-desc'>${row.item}</h4>
+                <ul>
+                    <li>Calories: ${row.calories} calories</li>
+                    <li>Protein: ${row.protein} g</li>
+                    <li>Fat: ${row.total_fat} g</li>
+                    <li>Cholesterol: ${row.cholesterol} mg</li>
+                    <li>Sodium: ${row.sodium} mg</li>
+                </ul>
             </div>`
         }
 
-        function sendFocus(){
+        function sendFocus() {
             document.getElementById('filter-text-val').focus()
         }
 
-        function filterText(){
+        function filterText() {
             document.getElementById("answer-box").innerHTML = ""
             console.log(document.getElementById("filter-text-val").value)
-            fetch("/episodes?" + new URLSearchParams({ title: document.getElementById("filter-text-val").value }).toString())
-            .then((response) => response.json())
-            .then((data) => data.forEach(row => {
-                
-                let tempDiv = document.createElement("div")
-                tempDiv.innerHTML = answerBoxTemplate(row.restaurant,row.item)
-                document.getElementById("answer-box").appendChild(tempDiv)
-            }));
+            fetch("/food?" + new URLSearchParams({ food: document.getElementById("filter-text-val").value }).toString())
+                .then((response) => response.json())
+                .then((data) => data.forEach(row => {
+
+                    let tempDiv = document.createElement("div")
+                    tempDiv.innerHTML = answerBoxTemplate(row)
+                    document.getElementById("answer-box").appendChild(tempDiv)
+                }));
 
         }
-            
+
     </script>
 </body>

@@ -4,6 +4,7 @@ from flask import Flask, render_template, request
 from flask_cors import CORS
 from helpers.MySQLDatabaseHandler import MySQLDatabaseHandler
 import similarity as sim
+from dotenv import load_dotenv
 
 # ROOT_PATH for linking with all your files. 
 # Feel free to use a config.py or settings.py with a global export variable
@@ -12,10 +13,14 @@ os.environ['ROOT_PATH'] = os.path.abspath(os.path.join("..",os.curdir))
 # These are the DB credentials for your OWN MySQL
 # Don't worry about the deployment credentials, those are fixed
 # You can use a different DB name if you want to
-MYSQL_USER = "root"
-MYSQL_USER_PASSWORD = ""
-MYSQL_PORT = 3306
-MYSQL_DATABASE = "fastfooddb"
+
+dotenv_path = './.env'
+load_dotenv(dotenv_path=dotenv_path)
+
+MYSQL_USER = os.getenv('MYSQL_USER')
+MYSQL_USER_PASSWORD = os.getenv('MYSQL_USER_PASSWORD')
+MYSQL_PORT = os.getenv('MYSQL_PORT')
+MYSQL_DATABASE = os.getenv('MYSQL_DATABASE')
 
 mysql_engine = MySQLDatabaseHandler(MYSQL_USER,MYSQL_USER_PASSWORD,MYSQL_PORT,MYSQL_DATABASE)
 
@@ -30,8 +35,9 @@ CORS(app)
 # but if you decide to use SQLAlchemy ORM framework, 
 # there's a much better and cleaner way to do this
 def sql_search(itemname):
-    query_sql = f"SELECT restaurant, item FROM fast_food_items"
-    keys = ["restaurant", "item"]
+    query_sql = f"SELECT * FROM fast_food_items"
+    keys = ["restaurant", "item", "calories", "total_fat", "cholesterol",
+    "sodium", "protein"]
     data = mysql_engine.query_selector(query_sql)
     results = [dict(zip(keys, i)) for i in data]
     top_10 = sim.cosine_similarity(itemname, results)
@@ -41,9 +47,9 @@ def sql_search(itemname):
 def home():
     return render_template('base.html',title="sample html")
 
-@app.route("/episodes")
-def episodes_search():
-    text = request.args.get("title")
+@app.route("/food")
+def food_search():
+    text = request.args.get("food")
     return sql_search(text)
 
 # app.run(debug=True)
