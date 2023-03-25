@@ -4,7 +4,7 @@ from flask import Flask, render_template, request
 from flask_cors import CORS
 from helpers.MySQLDatabaseHandler import MySQLDatabaseHandler
 import similarity as sim
-from dotenv import load_dotenv
+from dotenv import load_dotenv, find_dotenv
 
 # ROOT_PATH for linking with all your files. 
 # Feel free to use a config.py or settings.py with a global export variable
@@ -14,8 +14,7 @@ os.environ['ROOT_PATH'] = os.path.abspath(os.path.join("..",os.curdir))
 # Don't worry about the deployment credentials, those are fixed
 # You can use a different DB name if you want to
 
-dotenv_path = './.env'
-load_dotenv(dotenv_path=dotenv_path)
+load_dotenv(find_dotenv())
 
 MYSQL_USER = os.getenv('MYSQL_USER')
 MYSQL_USER_PASSWORD = os.getenv('MYSQL_USER_PASSWORD')
@@ -36,11 +35,10 @@ CORS(app)
 # there's a much better and cleaner way to do this
 def sql_search(itemname):
     query_sql = f"SELECT * FROM fast_food_items"
-    keys = ["restaurant", "item", "calories", "total_fat", "cholesterol",
-    "sodium", "protein"]
+    keys = ["restaurant", "item", "calories", "total_fat", "cholesterol", "sodium", "protein"]
     data = mysql_engine.query_selector(query_sql)
     results = [dict(zip(keys, i)) for i in data]
-    top_10 = sim.cosine_similarity(itemname, results)
+    top_10 = sim.cosine_sim(itemname, results)
     return json.dumps(top_10)
 
 @app.route("/")
