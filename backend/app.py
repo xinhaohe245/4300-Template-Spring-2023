@@ -30,12 +30,10 @@ CORS(app)
 # but if you decide to use SQLAlchemy ORM framework, 
 # there's a much better and cleaner way to do this
 def sql_search(itemname):
-    query_sql = f"SELECT restaurant, item FROM fast_food_items WHERE LOWER(item) LIKE '%%{itemname.lower()}%%'"
+    query_sql = f"SELECT restaurant, item FROM fast_food_items"
     keys = ["restaurant", "item"]
     data = mysql_engine.query_selector(query_sql)
     results = [dict(zip(keys, i)) for i in data]
-    if len(results) <= 10:
-        return json.dumps(results)
     top_10 = sim.cosine_similarity(itemname, results)
     return json.dumps(top_10)
 
@@ -48,4 +46,4 @@ def episodes_search():
     text = request.args.get("title")
     return sql_search(text)
 
-app.run(debug=True)
+# app.run(debug=True)

@@ -1,10 +1,10 @@
 from sklearn.feature_extraction.text import TfidfVectorizer
 import numpy as np
 
-n_features = 200
+n_features = 1000
 
 tfidf_vec =  TfidfVectorizer(max_features = n_features, stop_words = "english", 
-norm='l2')
+max_df = 0.8, min_df=3, norm='l2')
 
 def cosine_similarity(query, results):
   combined = [query] + [result['item'] for result in results]
