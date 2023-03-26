@@ -20,7 +20,7 @@
             </div>
             <div class="input-box" onclick="sendFocus()">
                 <img src="{{ url_for('static', filename='images/mag.png') }}" />
-                <input placeholder="What fast food are you craving?" id="filter-text-val" onkeyup="filterText()">
+                <input placeholder="What fast food are you craving?" id="filter-text-val">
             </div>
         </div>
         <div id="answer-box">
@@ -44,14 +44,22 @@
             </div>`
         }
 
+        const input = document.getElementById("filter-text-val");
+
         function sendFocus() {
-            document.getElementById('filter-text-val').focus()
+            input.focus()
         }
+
+        input.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') {
+                filterText();
+            }
+        });
 
         function filterText() {
             document.getElementById("answer-box").innerHTML = ""
             console.log(document.getElementById("filter-text-val").value)
-            fetch("/food?" + new URLSearchParams({ food: document.getElementById("filter-text-val").value }).toString())
+            fetch("/food?" + new URLSearchParams({ food: document.getElementById("filter-text-val").value.trim() }).toString())
                 .then((response) => response.json())
                 .then((data) => data.forEach(row => {
 
@@ -59,7 +67,6 @@
                     tempDiv.innerHTML = answerBoxTemplate(row)
                     document.getElementById("answer-box").appendChild(tempDiv)
                 }));
-
         }
 
     </script>

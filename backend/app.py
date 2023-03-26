@@ -19,7 +19,7 @@ load_dotenv(find_dotenv())
 MYSQL_USER = os.getenv('MYSQL_USER')
 MYSQL_USER_PASSWORD = os.getenv('MYSQL_USER_PASSWORD')
 MYSQL_PORT = os.getenv('MYSQL_PORT')
-MYSQL_DATABASE = "kardashiandb"
+MYSQL_DATABASE = "fastfooddb"
 
 mysql_engine = MySQLDatabaseHandler(MYSQL_USER,MYSQL_USER_PASSWORD,MYSQL_PORT,MYSQL_DATABASE)
 
@@ -38,7 +38,7 @@ def sql_search(itemname):
     keys = ["restaurant", "item", "calories", "total_fat", "cholesterol", "sodium", "protein"]
     data = mysql_engine.query_selector(query_sql)
     results = [dict(zip(keys, i)) for i in data]
-    top_10 = sim.cosine_sim(itemname, results)
+    top_10 = sim.edit_distance_sim(itemname, results)
     return json.dumps(top_10)
 
 @app.route("/")
