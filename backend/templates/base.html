@@ -36,12 +36,11 @@
 
         function answerBoxTemplate(row) {
             return `<div class=''>
-                <h3 class='episode-title'>${row.restaurant}</h3>
-                <h4 class='episode-desc'>${row.item}</h4>
-                <ul>
+                <h1 class='restaurant-name'>${row.restaurant}</h1>
+                <h3 class='restaurant-item'>Recommended Item: ${row.item_name}</h3>
+                <p class='item-description'>${row.item_description}</p>
+                <ul class='nutrition-info'>
                     <li>Calories: ${row.calories} calories</li>
-                    <li>Protein: ${row.protein} g</li>
-                    <li>Fat: ${row.total_fat} g</li>
                     <li>Cholesterol: ${row.cholesterol} mg</li>
                     <li>Sodium: ${row.sodium} mg</li>
                 </ul>
