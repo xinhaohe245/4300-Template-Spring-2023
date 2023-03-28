@@ -34,7 +34,7 @@ CORS(app)
 # but if you decide to use SQLAlchemy ORM framework, 
 # there's a much better and cleaner way to do this
 def sql_search(itemname):
-    query_sql = f"SELECT `restaurant`, `item_name`, `item_description`, `calories`, `cholesterol`, sodium FROM fast_food_items"
+    query_sql = f"SELECT restaurant, item_name, item_description, calories, cholesterol, sodium FROM fast_food_items"
     keys = ["restaurant", "item_name", "item_description", "calories", "cholesterol", "sodium"]
     data = mysql_engine.query_selector(query_sql)
     results = [dict(zip(keys, i)) for i in data]

@@ -20,3 +20,5 @@ build/
 helpers/*
 
 .ipynb_checkpoints
+data/
+old_init.sql
