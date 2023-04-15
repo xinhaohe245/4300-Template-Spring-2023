@@ -6,6 +6,13 @@ from helpers.MySQLDatabaseHandler import MySQLDatabaseHandler
 import similarity as sim
 from dotenv import load_dotenv, find_dotenv
 
+from sklearn.feature_extraction.text import TfidfVectorizer
+import numpy as np
+from nltk.metrics import edit_distance
+from sklearn.preprocessing import normalize
+from scipy.sparse.linalg import svds
+
+
 # ROOT_PATH for linking with all your files. 
 # Feel free to use a config.py or settings.py with a global export variable
 os.environ['ROOT_PATH'] = os.path.abspath(os.path.join("..",os.curdir))
@@ -29,16 +36,23 @@ mysql_engine.load_file_into_db()
 app = Flask(__name__)
 CORS(app)
 
+query_sql = "select restaurant, item_name, item_description, calories, cholesterol, sodium from fast_food_items"
+keys = ["restaurant", "item_name", "item_description", "calories", "cholesterol", "sodium"]
+data = mysql_engine.query_selector(query_sql)
+results = [dict(zip(keys, i)) for i in data]
 
-# Sample search, the LIKE operator in this case is hard-coded, 
-# but if you decide to use SQLAlchemy ORM framework, 
-# there's a much better and cleaner way to do this
-def sql_search(itemname):
-    query_sql = f"SELECT restaurant, item_name, item_description, calories, cholesterol, sodium FROM fast_food_items"
-    keys = ["restaurant", "item_name", "item_description", "calories", "cholesterol", "sodium"]
-    data = mysql_engine.query_selector(query_sql)
-    results = [dict(zip(keys, i)) for i in data]
-    top_10 = sim.edit_distance_sim(itemname, results)
+vectorizer = TfidfVectorizer(stop_words = 'english', max_df = 0.8, min_df=100)
+td_matrix = vectorizer.fit_transform([result['item_description'] for result in results])
+docs_compressed, s, words_compressed = svds(td_matrix, k=50)
+words_compressed = normalize(words_compressed.T, axis=1)
+docs_compressed = normalize(docs_compressed)
+
+
+
+def sql_search(query):
+    query_tfidf = vectorizer.transform([query]).toarray()
+    query_vec = query_tfidf.dot(words_compressed)
+    top_10 = sim.cosine_sim(query_vec, docs_compressed, results)
     return json.dumps(top_10)
 
 @app.route("/")
