@@ -5,8 +5,7 @@ def cosine_sim(query_vec, docs, results, ratings):
   top_30 = np.argsort(-scores)[:31]
   restaurants = [results[i] for i in top_30[1:]]
   for restaurant in restaurants:
-    rating = ratings.get(f"\"{restaurant['restaurant']}\"", 0)
-    restaurant['avg_rating'] = rating
+    restaurant['avg_rating'] = ratings.get(restaurant['restaurant'])
   restaurants.sort(key=lambda x : -x['avg_rating'])
   return restaurants[:10]
 
