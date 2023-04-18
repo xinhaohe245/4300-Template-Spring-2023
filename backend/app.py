@@ -47,12 +47,16 @@ docs_compressed, s, words_compressed = svds(td_matrix, k=50)
 words_compressed = normalize(words_compressed.T, axis=1)
 docs_compressed = normalize(docs_compressed)
 
-
+rating_sql = "select restaurant, avg(rating) as avg_rating from reviews group by restaurant"
+rating_data = mysql_engine.query_selector(rating_sql)
+rating_results = [dict(zip(['restaurant', 'avg_rating'], i)) for i in rating_data]
+restaurant_ratings = {i['restaurant'] : float(round(i['avg_rating'], 2)) for i in rating_results}
+ 
 
 def sql_search(query):
     query_tfidf = vectorizer.transform([query]).toarray()
     query_vec = query_tfidf.dot(words_compressed)
-    top_10 = sim.cosine_sim(query_vec, docs_compressed, results)
+    top_10 = sim.cosine_sim(query_vec, docs_compressed, results, restaurant_ratings)
     return json.dumps(top_10)
 
 @app.route("/")
