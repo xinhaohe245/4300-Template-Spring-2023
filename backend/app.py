@@ -36,9 +36,9 @@ mysql_engine.load_file_into_db()
 app = Flask(__name__)
 CORS(app)
 
-query_sql = "select restaurant, item_name, item_description, calories, cholesterol, sodium from fast_food_items"
+food_query = "select restaurant, item_name, item_description, calories, cholesterol, sodium from fast_food_items"
 keys = ["restaurant", "item_name", "item_description", "calories", "cholesterol", "sodium"]
-data = mysql_engine.query_selector(query_sql)
+data = mysql_engine.query_selector(food_query)
 results = [dict(zip(keys, i)) for i in data]
 
 vectorizer = TfidfVectorizer(stop_words = 'english', max_df = 0.8, min_df=100)
@@ -47,10 +47,15 @@ docs_compressed, s, words_compressed = svds(td_matrix, k=50)
 words_compressed = normalize(words_compressed.T, axis=1)
 docs_compressed = normalize(docs_compressed)
 
-rating_sql = "select restaurant, avg(rating) as avg_rating from reviews group by restaurant"
-rating_data = mysql_engine.query_selector(rating_sql)
+rating_query = "select restaurant, avg(rating) as avg_rating from reviews group by restaurant"
+rating_data = mysql_engine.query_selector(rating_query)
 rating_results = [dict(zip(['restaurant', 'avg_rating'], i)) for i in rating_data]
 restaurant_ratings = {i['restaurant'] : float(round(i['avg_rating'], 2)) for i in rating_results}
+
+review_query = "select restaurant, group_concat(review) as all_reviews from reviews group by restaurant"
+review_data = mysql_engine.query_selector(review_query)
+review_results = [dict(zip(['restaurant', 'all_reviews'], i)) for i in review_data]
+restaurant_reviews = {i['restaurant'] : i['all_reviews'] for i in review_results}
  
 
 def sql_search(query):
