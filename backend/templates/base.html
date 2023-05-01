@@ -87,6 +87,8 @@
             return `<div class=''>
                 <h1 class='restaurant-item'>Recommended Item: ${row.item_name}</h1>
                 <h2 class='restaurant-name'>From ${row.restaurant}</h2>
+                <p class='item-description'>${row.item_description}</p>
+
                 <table border="1">
                     <tr> 
                         <th>Food Similarity</th>
@@ -101,7 +103,6 @@
                         <td>${row.rest_sim.toFixed(2)}</td>
                     </tr>
                 </table>
-                <p class='item-description'>${row.item_description}</p>
                 <ul class='nutrition-info'>
                     <li>Calories: ${row.calories} calories</li>
                     <li>Cholesterol: ${row.cholesterol} mg</li>

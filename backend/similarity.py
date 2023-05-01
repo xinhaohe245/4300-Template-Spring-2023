@@ -14,12 +14,10 @@ def cosine_sim(query_vec, food_docs, results, ratings, restaurant_to_index, rest
     top_items[i]['food_sim'] = scores[top_30[i]]
     top_items[i]['rating'] = ratings.get(restaurant)
     top_items[i]['rest_sim'] = 0 if rest_vec is None else rest_scores[restaurant_to_index[restaurant]]
-    weights[i] = top_items[i]['rating'] + top_items[i]['rest_sim']
+    weights[i] = top_items[i]['food_sim'] + top_items[i]['rating'] + top_items[i]['rest_sim']
   weights = [weight/sum(weights) for weight in weights]
   top_10 = np.random.choice(top_items, size=10, replace=False, p=weights)
-  # sorted_items = np.argsort([-x['overall_score'] for x in top_10])
   return list(top_10)
-  # [top_10[i] for i in sorted_items]
 
 
 
