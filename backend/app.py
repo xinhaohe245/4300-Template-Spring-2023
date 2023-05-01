@@ -51,7 +51,10 @@ query = "select restaurant, avg(rating) as avg_rating from reviews group by rest
 keys = ['restaurant', 'avg_rating']
 data = mysql_engine.query_selector(query)
 rating_results = [dict(zip(keys, i)) for i in data]
-restaurant_ratings = {i['restaurant'] : float(round(i['avg_rating'], 2)) for i in rating_results}
+min_rating = np.amin([result['avg_rating'] for result in rating_results])
+max_rating = np.amax([result['avg_rating'] for result in rating_results])
+restaurant_ratings = {i['restaurant'] : float((i['avg_rating'] - min_rating)
+/(max_rating - min_rating)) for i in rating_results}
 
 query = "select restaurant, group_concat(review) as all_reviews from reviews group by restaurant"
 keys = ['restaurant', 'all_reviews']
@@ -72,7 +75,8 @@ def sql_search(query, restaurant_filter = None):
         rest_vec = np.zeros(s.shape)
         for restaurant in restaurants:
             rest_vec += rest_docs[restaurant_to_index[restaurant]]
-        rest_vec /= len(restaurants)
+        rest_vec = rest_vec.reshape(-1, 1)
+        rest_vec = normalize(rest_vec / len(restaurants), axis=0).flatten()
 
     query_tfidf = vectorizer.transform([query]).toarray()
     query_vec = query_tfidf.dot(words_compressed)
