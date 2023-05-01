@@ -13,13 +13,32 @@
     <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" rel="stylesheet" />
     <!-- MDB -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.2.0/mdb.min.css" rel="stylesheet" />
+
+    <style>
+        body {
+            background-image: url('static/images/fastfood.jpg');
+            background-size: cover;
+            color: white
+        }
+    </style>
 </head>
 
+
+
+
 <body>
+    <style>
+        .input-box{
+            background-color: white;
+        }
+
+    </style>
+
     <div class="full-body-container">
+
         <div class="top-text">
             <div class="google-colors">
-                <h1 id="google-c">Fast Foodies</h1>
+                <h1 id="google-c" style="color:gold">Fast Foodies</h1>
             </div>
             <div class="input-box" onclick="sendFocus()">
                 <img src="{{ url_for('static', filename='images/mag.png') }}" />
@@ -27,8 +46,10 @@
             </div>
         </div>
         <div class="restaurant-select-container">
+            <label>Filter By Restaurant:
             <select id="restaurant-select" multiple multiselect-search="true">
             </select>
+            </label>
         </div>
         <div id="answer-box">
 
