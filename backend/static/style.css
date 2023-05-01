@@ -79,7 +79,7 @@
 
 #answer-box{
     width: 700px;
-    margin-top:50px; 
+    margin-top:50px;
 }
 
 .episode-title{
@@ -88,4 +88,8 @@
 
 .episode-desc{
     font-family: 'Montserrat', sans-serif;
+}
+
+.restaurant-select-container {
+    margin-top: 2rem;
 }

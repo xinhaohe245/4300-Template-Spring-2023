@@ -13,7 +13,7 @@ from sklearn.preprocessing import normalize
 from scipy.sparse.linalg import svds
 
 
-# ROOT_PATH for linking with all your files. 
+# ROOT_PATH for linking with all your files.
 # Feel free to use a config.py or settings.py with a global export variable
 os.environ['ROOT_PATH'] = os.path.abspath(os.path.join("..",os.curdir))
 
@@ -56,12 +56,11 @@ review_query = "select restaurant, group_concat(review) as all_reviews from revi
 review_data = mysql_engine.query_selector(review_query)
 review_results = [dict(zip(['restaurant', 'all_reviews'], i)) for i in review_data]
 restaurant_reviews = {i['restaurant'] : i['all_reviews'] for i in review_results}
- 
 
-def sql_search(query):
+def sql_search(query, restaurant_filter = None):
     query_tfidf = vectorizer.transform([query]).toarray()
     query_vec = query_tfidf.dot(words_compressed)
-    top_10 = sim.cosine_sim(query_vec, docs_compressed, results, restaurant_ratings)
+    top_10 = sim.cosine_sim(query_vec, docs_compressed, results, restaurant_ratings, restaurant_filter)
     return json.dumps(top_10)
 
 @app.route("/")
@@ -71,6 +70,7 @@ def home():
 @app.route("/food")
 def food_search():
     text = request.args.get("food")
-    return sql_search(text)
+    restaurant = request.args.get("restaurant")
+    return sql_search(text, restaurant)
 
 # app.run(debug=True)
