@@ -36,9 +36,9 @@ mysql_engine.load_file_into_db()
 app = Flask(__name__)
 CORS(app)
 
-food_query = "select restaurant, item_name, item_description, calories, cholesterol, sodium from fast_food_items"
+query = "select restaurant, item_name, item_description, calories, cholesterol, sodium from fast_food_items"
 keys = ["restaurant", "item_name", "item_description", "calories", "cholesterol", "sodium"]
-data = mysql_engine.query_selector(food_query)
+data = mysql_engine.query_selector(query)
 results = [dict(zip(keys, i)) for i in data]
 
 vectorizer = TfidfVectorizer(stop_words = 'english', max_df = 0.8, min_df=100)
@@ -47,20 +47,37 @@ docs_compressed, s, words_compressed = svds(td_matrix, k=50)
 words_compressed = normalize(words_compressed.T, axis=1)
 docs_compressed = normalize(docs_compressed)
 
-rating_query = "select restaurant, avg(rating) as avg_rating from reviews group by restaurant"
-rating_data = mysql_engine.query_selector(rating_query)
-rating_results = [dict(zip(['restaurant', 'avg_rating'], i)) for i in rating_data]
+query = "select restaurant, avg(rating) as avg_rating from reviews group by restaurant"
+keys = ['restaurant', 'avg_rating']
+data = mysql_engine.query_selector(query)
+rating_results = [dict(zip(keys, i)) for i in data]
 restaurant_ratings = {i['restaurant'] : float(round(i['avg_rating'], 2)) for i in rating_results}
 
-review_query = "select restaurant, group_concat(review) as all_reviews from reviews group by restaurant"
-review_data = mysql_engine.query_selector(review_query)
-review_results = [dict(zip(['restaurant', 'all_reviews'], i)) for i in review_data]
-restaurant_reviews = {i['restaurant'] : i['all_reviews'] for i in review_results}
+query = "select restaurant, group_concat(review) as all_reviews from reviews group by restaurant"
+keys = ['restaurant', 'all_reviews']
+data = mysql_engine.query_selector(query)
+review_results = [dict(zip(keys, i)) for i in data]
+restaurant_to_index = {item['restaurant'] : i for i, item in enumerate(review_results)}
+
+rest_vectorizer = TfidfVectorizer(stop_words = 'english', max_df = 0.8, min_df=1)
+td_matrix = rest_vectorizer.fit_transform([result['all_reviews'] for result in review_results])
+rest_docs, s, rest_words = svds(td_matrix, k=30)
+rest_words = normalize(rest_words.T, axis=1)
+rest_docs = normalize(rest_docs)
 
 def sql_search(query, restaurant_filter = None):
+    rest_vec = None
+    if restaurant_filter != 'null':
+        restaurants = restaurant_filter.split(',')
+        rest_vec = np.zeros(s.shape)
+        for restaurant in restaurants:
+            rest_vec += rest_docs[restaurant_to_index[restaurant]]
+        rest_vec /= len(restaurants)
+
     query_tfidf = vectorizer.transform([query]).toarray()
     query_vec = query_tfidf.dot(words_compressed)
-    top_10 = sim.cosine_sim(query_vec, docs_compressed, results, restaurant_ratings, restaurant_filter)
+    top_10 = sim.cosine_sim(query_vec, docs_compressed, results, 
+    restaurant_ratings, restaurant_to_index, rest_docs, rest_vec)
     return json.dumps(top_10)
 
 @app.route("/")

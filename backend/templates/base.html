@@ -1,27 +1,20 @@
 <!doctype html>
+
 <head>
-<title>Fast foodies</title>
-<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Kanit&family=Montserrat&family=Open+Sans:wght@500&display=swap"
-    rel="stylesheet">
-<!-- Font Awesome -->
-<link
-  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
-  rel="stylesheet"
-/>
-<!-- Google Fonts -->
-<link
-  href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap"
-  rel="stylesheet"
-/>
-<!-- MDB -->
-<link
-  href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.2.0/mdb.min.css"
-  rel="stylesheet"
-/>
+    <title>Fast foodies</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit&family=Montserrat&family=Open+Sans:wght@500&display=swap"
+        rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" rel="stylesheet" />
+    <!-- MDB -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.2.0/mdb.min.css" rel="stylesheet" />
 </head>
+
 <body>
     <div class="full-body-container">
         <div class="top-text">
@@ -31,21 +24,10 @@
             <div class="input-box" onclick="sendFocus()">
                 <img src="{{ url_for('static', filename='images/mag.png') }}" />
                 <input placeholder="What fast food are you craving?" id="filter-text-val">
-                <label>Calories</label>
-                <select>
-                    <option value="calories-high">High</option>
-                    <option value="calories-low">Low</option>
-                </select>
-                <label>Sodium</label>
-                <select>
-                    <option value="sodium-high">High</option>
-                    <option value="sodium-low">Low</option>
-                </select>
             </div>
         </div>
         <div class="restaurant-select-container">
-            <select id="restaurant-select" multiple>
-                <option disabled selected>Select a restaurant to filter by</option>
+            <select id="restaurant-select" multiple multiselect-search="true">
             </select>
         </div>
         <div id="answer-box">
@@ -56,7 +38,7 @@
     <script>
         const restaurants =
             ["Domino's", "Steak 'N Shake", 'Jamba Juice', "Arby's", "Papa Muphy's", 'Firehouse Subs', "Carrabba's Italian Grill", "Papa John's", 'Chick-Fil-A Lemonade, Medium', "TGI Friday's", 'Pizza Hut', 'Krystal', 'Shake Shack', 'Tropical Smoothie Café', 'Waffle House', 'Chick-Fil-A', 'Whataburger', 'Del Taco', "Checker's Drive-In / Rally's", 'Perkins', "Chili's", 'El Pollo Loco', 'Olive Garden', "Freddy's Frozen Custard & Steakburgers", "McDonald's", 'Bonefish Grill', "Church's Chicken", 'Qdoba', 'Panda Express', 'Bojangles', 'Chuck E. Cheese', "Dickey's Barbeque", "Little Caesar's", "Jimmy John's", 'California Pizza Kitchen', "Portillo's", 'Boston Market', "Culver's", "Jason's Deli", 'Red Lobster', 'Buffalo Wild Wings', 'On The Border', "Romano's Macaroni Grill", "Wendy's", 'Burger King', 'Dairy Queen', 'Sonic', 'Panera Bread', "Logan's Roadhouse", 'Round Table Pizza', 'Golden Corral', "Moe's Southwest Grill", 'Baskin Robbins', "Dunkin' Donuts", "Ci Ci's Pizza", 'Popeyes', 'Krispy Kreme', 'IHOP', 'Jack in the Box', "Dave & Buster's", 'Tim Hortons', "Raising Cane's Chicken Fingers", 'Red Robin', 'Starbucks', 'Ruby Tuesday', 'Five Guys', 'In-N-Out', "Zaxby's", "Casey's General Store", "Applebee's", 'Longhorn Steakhouse', 'Sbarro', 'Subway', 'Wingstop', "Carl's Jr.", '7-Eleven', "Long John Silver's", "Jersey Mike's Subs", "Friendly's", "Denny's", 'The Cheesecake Factory', "Cheddar's Casual Cafe / Cheddar's Scratch Kitchen", 'Cracker Barrel', "Marco's Pizza", 'Taco Bell', 'Yard House', 'KFC', 'Quiznos', "Captain D's", "Auntie Anne's", 'White Castle', 'Einstein Bros', 'The Capital Grille', "Hardee's", 'Outback Steakhouse', "PF Chang's", "Hooter's", "McAlister's Deli", 'Chipotle', 'Bob Evans', "Famous Dave's", "BJ's Restaurant & Brewhouse"]
-        let selectedRestaurant = null
+        let selectedRestaurants = null
 
         function populateSelect() {
             const selectElement = document.getElementById('restaurant-select');
@@ -75,12 +57,12 @@
         const selectElement = document.getElementById('restaurant-select');
         selectElement.addEventListener('change', () => {
             const selectedOptions = Array.from(selectElement.selectedOptions).map(option => option.value);
-            selectedRestaurant = selectedOptions[0]
+            selectedRestaurants = selectedOptions
         });
 
         function answerBoxTemplate(row) {
             return `<div class=''>
-                <h1 class='restaurant-name'>${row.restaurant} -- Average User Rating: ${row.avg_rating}/5</h1>
+                <h1 class='restaurant-name'>${row.restaurant} -- Score: ${row.overall_score}</h1>
                 <h3 class='restaurant-item'>Recommended Item: ${row.item_name}</h3>
                 <p class='item-description'>${row.item_description}</p>
                 <ul class='nutrition-info'>
@@ -106,7 +88,10 @@
         function filterText() {
             document.getElementById("answer-box").innerHTML = ""
 
-            fetch("/food?" + new URLSearchParams({ food: document.getElementById("filter-text-val").value.trim(), restaurant: selectedRestaurant }).toString())
+            fetch("/food?" + new URLSearchParams({
+                food: document.getElementById("filter-text-val").value.trim(),
+                restaurant: selectedRestaurants
+            }).toString())
                 .then((response) => response.json())
                 .then((data) => data.forEach(row => {
 
@@ -118,8 +103,6 @@
 
     </script>
     <!-- MDB -->
-    <script
-    type="text/javascript"
-    src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.2.0/mdb.min.js"
-    ></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.2.0/mdb.min.js"></script>
+    <script src="{{ url_for('static', filename='multiselect-dropdown.js') }}"></script>
 </body>
