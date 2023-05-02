@@ -70,7 +70,7 @@ rest_docs = normalize(rest_docs)
 
 def sql_search(query, restaurant_filter = None):
     rest_vec = None
-    if restaurant_filter != 'null':
+    if restaurant_filter != 'null' and restaurant_filter != '':
         restaurants = restaurant_filter.split(',')
         rest_vec = np.zeros(s.shape)
         for restaurant in restaurants:
